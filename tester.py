@@ -20,6 +20,8 @@ class Tester(object):
             done = False
             while not done:
                 if visualize:
+                    import time
+                    time.sleep(0.05)
                     self.env.render()
 
                 action = self.policy(s0)
@@ -27,8 +29,8 @@ class Tester(object):
                 episode_reward += reward
                 episode_steps += 1
 
-                if episode_steps + 1 > self.test_ep_steps:
-                    done = True
+                # if episode_steps + 1 > self.test_ep_steps:
+                #     done = True
 
             if debug:
                 print('[Test] episode: %3d, episode_reward: %5f' % (episode, episode_reward))

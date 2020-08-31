@@ -19,6 +19,8 @@ class Trainer:
             -1. * frame_idx / epsilon_decay)
 
         self.outputdir = get_output_folder(self.config.output, self.config.env)
+        # print("outputdir:", self.outputdir)
+        # input()
         self.agent.save_config(self.outputdir)
         self.board_logger = TensorBoardLogger(self.outputdir)
 

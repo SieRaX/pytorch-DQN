@@ -16,7 +16,8 @@ class DQNAgent:
         self.is_training = True
         self.buffer = ReplayBuffer(self.config.max_buff)
 
-        self.model = DQN(self.config.state_dim, self.config.action_dim).cuda()
+        # self.model = DQN(self.config.state_dim, self.config.action_dim).cuda()
+        self.model = DQN(self.config.state_dim, self.config.action_dim)
         self.model_optim = Adam(self.model.parameters(), lr=self.config.learning_rate)
 
         if self.config.use_cuda:
@@ -50,8 +51,11 @@ class DQNAgent:
             r = r.cuda()
             done = done.cuda()
 
-        q_values = self.model(s0).cuda()
-        next_q_values = self.model(s1).cuda()
+        # q_values = self.model(s0).cuda()
+        # next_q_values = self.model(s1).cuda()
+        # next_q_value = next_q_values.max(1)[0]
+        q_values = self.model(s0)
+        next_q_values = self.model(s1)
         next_q_value = next_q_values.max(1)[0]
 
         q_value = q_values.gather(1, a.unsqueeze(1)).squeeze(1)
@@ -74,6 +78,8 @@ class DQNAgent:
         self.model.load_state_dict(torch.load(model_path))
 
     def save_model(self, output, tag=''):
+        print("saving model")
+        input()
         torch.save(self.model.state_dict(), '%s/model_%s.pkl' % (output, tag))
 
     def save_config(self, output):
@@ -100,14 +106,14 @@ if __name__ == '__main__':
     config.epsilon_min = 0.01
     config.eps_decay = 500
     config.frames = 160000
-    config.use_cuda = True
+    config.use_cuda = False
     config.learning_rate = 1e-3
     config.max_buff = 1000
     config.update_tar_interval = 100
     config.batch_size = 128
     config.print_interval = 200
     config.log_interval = 200
-    config.win_reward = 198     # CartPole-v0
+    config.win_reward = 180    # CartPole-v0
     config.win_break = True
 
     env = gym.make(config.env)
@@ -115,6 +121,9 @@ if __name__ == '__main__':
     config.state_dim = env.observation_space.shape[0]
     agent = DQNAgent(config)
 
+    print("Train:", args.train)
+    print("Test:", args.test)
+    input()
     if args.train:
         trainer = Trainer(agent, env, config)
         trainer.train()
@@ -124,4 +133,4 @@ if __name__ == '__main__':
             print('please add the model path:', '--model_path xxxx')
             exit(0)
         tester = Tester(agent, env, args.model_path)
-        tester.test()
+        tester.test(debug=True)

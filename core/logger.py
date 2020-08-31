@@ -1,12 +1,12 @@
 import os
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import numpy as np
 import scipy.misc
 from io import BytesIO, StringIO
 
 import matplotlib.pyplot as plt
-from scipy.interpolate import spline, interp1d
+# from scipy.interpolate import spline, interp1d
 
 from core.util import time_seq
 plt.rcParams.update({'font.size': 13})
@@ -17,10 +17,12 @@ class TensorBoardLogger(object):
     """
     Code referenced from https://gist.github.com/gyglim/1f8dfb1b5c82627ae3efcfbbadb9f514
     """
-    
+
     def __init__(self, log_dir):
         """Create a summary writer logging to log_dir."""
+        tf.disable_eager_execution()
         self.writer = tf.summary.FileWriter(log_dir)
+        # self.writer = tf.summary.create_file_writer(log_dir)
 
     def scalar_summary(self, tag, step, value):
         """Log a scalar variable."""
@@ -49,7 +51,7 @@ class TensorBoardLogger(object):
         # Create and write Summary
         summary = tf.Summary(value=img_summaries)
         self.writer.add_summary(summary, step)
-        
+
     def histo_summary(self, tag, values, step, bins=1000):
         """Log a histogram of the tensor of values."""
 
@@ -120,7 +122,6 @@ class MatplotlibLogger:
         self.plot_dict[tag].Y.append(y)
         self.plot_dict[tag].X.append(x)
         self.plot_dict[tag].save()
-
 
 
 
